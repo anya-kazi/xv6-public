@@ -26,6 +26,18 @@ fetchint(uint addr, int *ip)
   return 0;
 }
 
+// Fetch the uint64 at addr from the current process.
+int
+fetchaddr(uint64 addr, uint64 *ip)
+{
+  struct proc *p = myproc();
+  if(addr >= p->sz || addr+sizeof(uint64) > p->sz)
+    return -1;
+  if(copyin(p->pagetable, (char *)ip, addr, sizeof(*ip)) != 0)
+    return -1;
+  return 0;
+}
+
 // Fetch the nul-terminated string at addr from the current process.
 // Doesn't actually copy the string - just sets *pp to point at it.
 // Returns length of string, not including nul.
@@ -105,6 +117,12 @@ extern int sys_unlink(void);
 extern int sys_wait(void);
 extern int sys_write(void);
 extern int sys_uptime(void);
+
+
+extern uint64 sys_getfilenum(void);
+extern uint64 sys_mprotect(void);
+extern uint64 sys_munprotect(void);
+extern uint64 sys_dump_allocated(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
